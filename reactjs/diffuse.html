@@ -1,0 +1,98 @@
+{% extends "structure.html" %}
+{% block title %}Free Image Diffuse{% endblock title %}
+{% block body %}
+{% load static %}
+
+<section class="unique-image-generator text-center pt-5 mt-5">
+    <div class="container pt-4 mt-4">
+        <h1 class="fw-bolder display-4">Unique Image Generator</h1>
+        <p>This tool generates unique images for you without even you noticing the change! Just upload the image and we'll generate a unique one for you.</p>
+        <div class="d-flex flex-wrap">
+            <div class="frame">
+                <div class="center">
+                    <div class="title">
+                        <h3 class="text-uppercase fw-bolder">upload images</h3>
+                    </div>
+
+                    <form id="fileUploadForm" class="dropzone" method = "POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <img src="http://100dayscss.com/codepen/upload.svg" class="upload-icon" />
+                        
+                        <a href="/download" id="download" class="mt-2"> 
+                        </a>
+                        <input type="file" name="images" class="upload-input" id="upload-input" multiple onchange="handleFileUpload()" accept=".png , .jpg , .jpeg , .tiff" />
+
+                        <div class="spin spinner-grow text-primary" role="status" style="position: absolute !important; margin-left: -4rem; margin-top: 2rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </form>    
+
+                </div>
+            </div>
+
+            <div class="img w-50 pt-4 mt-4" >
+                <img src="{% static 'img/UI_bg.webp' %}" class="rounded" width="100%" height="80%" >
+            </div>
+        </div>
+    </div>
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    $(".spin").hide();
+    jQuery('body').css('opacity', '1');
+
+    function hidden(){
+        $(".spin").hide();
+        document.getElementById('download').click();
+        jQuery('body').css('opacity', '1');
+    }
+    
+    function handleFileUpload() {
+        $(".spin").show();
+        jQuery('body').css('opacity', '0.6');z
+
+        var fileInput = document.getElementById('upload-input');
+        var files = fileInput.files;
+        if (files.length > 10) {
+            alert("Files must be less then 10");
+            $(".spin").hide();
+            jQuery('body').css('opacity', '1');
+            return;
+        } 
+        
+        var formData = new FormData();  
+        
+        var input = $('#upload-input')[0];
+        
+        for (var i = 0; i < input.files.length; i++) {
+            formData.append('images', input.files[i]);
+        }
+        
+        formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
+        
+        setTimeout(hidden, 3000);
+    
+        $.ajax({
+            type: 'POST',
+            url: 'submitRecord/',  
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (error) {
+                // Handle the error response
+                console.error(error);
+            }
+        });
+}
+
+    
+   
+
+
+  </script>
+{% endblock body %}
+
+
