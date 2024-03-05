@@ -1,34 +1,22 @@
 from django.shortcuts import render,redirect
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from .models import *
 import shutil
 from PIL import Image
-import PIL
 import os
-import glob
 from random import randrange
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse
 import zipfile
 from io import BytesIO
-from django.contrib import messages
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView , ListAPIView
-from rest_framework import status
-from rest_framework.views import APIView
-from .serializers import *
 from django.contrib.auth import authenticate , login as auth_login , logout as auth_logout
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import re
+from django.conf import settings
 
-# Create your views here.
-
+BASE_DIR = settings.BASE_DIR
 def index(request):
     return render(request,"index.html")
 
@@ -60,13 +48,15 @@ def logout(request):
     auth_logout(request)
     return redirect("index")
 
-def applyAlgo(zippath,number_of_folder , image_title):
-    extract_path = f'zipextrection'
+def applyAlgo(zip_path,number_of_folder , image_title):
+    extract_path = os.path.join(BASE_DIR , 'zipextrection')
+
     if os.path.exists(extract_path):
         shutil.rmtree(extract_path)
     os.mkdir(extract_path)
+    
 
-    with zipfile.ZipFile(zippath, 'r') as zObject:
+    with zipfile.ZipFile(zip_path, 'r') as zObject:
         zObject.extractall(path=extract_path)
 
     """**Read all the files and check the extention. If extention is invalid then remove the file**"""
@@ -87,36 +77,36 @@ def applyAlgo(zippath,number_of_folder , image_title):
 
     """**Create new directory and make n folders**"""
 
-    mainDir = 'unique-images-folders'
+    main_dir = os.path.join(BASE_DIR , 'unique-images-folders')
 
-    if os.path.exists(mainDir):
-        shutil.rmtree(mainDir)
+    if os.path.exists(main_dir):
+        shutil.rmtree(main_dir)
 
-    os.mkdir(mainDir)
+    os.mkdir(main_dir)
 
     n = int(number_of_folder) # input by user
     for i in range(0 , n):
-        os.mkdir(mainDir + '/' + 'unique-folder-' + str(i + 1))
+        os.mkdir(main_dir + '/' + 'unique-folder-' + str(i + 1))
 
     """**Algorithm**"""
 
     for i in range(n):
         for x , file_name in enumerate(file_names):
             original_path = extract_path + '/' + file_name
-            newimgpath = mainDir + '/'+"unique-folder-"+str(i+1)+'/'+"u-image-" + str(x+1) + ".jpg"
+            newimgpath = main_dir + '/'+"unique-folder-"+str(i+1)+'/'+"u-image-" + str(x+1) + ".jpg"
             shutil.copyfile(original_path, newimgpath)
             picture = Image.open(newimgpath)
             picture = picture.convert('RGB')
             randnum = randrange(50, 99)
             picture.save(newimgpath,'JPEG', optimize=True,quality=randnum)
-    zip_main_dir = shutil.make_archive(image_title, 'zip', mainDir)
+    zip_main_dir = shutil.make_archive(os.path.join(BASE_DIR , image_title), 'zip', main_dir)
     
-    if os.path.exists("unique-images-folders"):
-            shutil.rmtree("unique-images-folders")
+    if os.path.exists(main_dir):
+            shutil.rmtree(main_dir)
     if os.path.exists(extract_path):
         shutil.rmtree(extract_path)
-    if os.path.exists(zippath):
-        os.remove(zippath)
+    if os.path.exists(zip_path):
+        os.remove(zip_path)
 
 def createAccount(request):
     if request.method == "POST":
@@ -159,24 +149,23 @@ def submitRecord(request):
         image_title = "unique-image"
         number_of_folder = 1
         images = request.FILES.getlist('images')
-        
-        newFolder = r'media/multipleImage/' + image_title
+        newFolder = os.path.join(BASE_DIR, 'media', 'multipleImage', image_title)
         if os.path.exists(newFolder):
             shutil.rmtree(newFolder)
+        
         os.mkdir(newFolder)
         for image in images:
             multi_img_file = default_storage.save('multipleImage/' + image.name, ContentFile(image.read()))
-            shutil.move('media/multipleImage/' + image.name , newFolder)
+            shutil.move(os.path.join(BASE_DIR, 'media', 'multipleImage', image.name) , newFolder)
 
             multiImg(
                 image_title=image.name,
                 number_of_folders=number_of_folder,
                 input_image=multi_img_file
                 ).save()
-        zipfile = shutil.make_archive(newFolder, 'zip', newFolder)
+        zip_file = shutil.make_archive(newFolder, 'zip', newFolder)
         shutil.rmtree(newFolder)
-        zippath = "media/multipleImage/" + image_title+'.zip'
-        applyAlgo(zippath,number_of_folder , image_title)
+        applyAlgo(zip_file, number_of_folder, image_title)
         return JsonResponse({'status' : 'success'})
     return redirect("diffuseImage")
 
