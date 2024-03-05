@@ -20,7 +20,7 @@ The Unique File Generator is a Django web application that allows users to creat
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/unique-file-generator.git
+   git clone https://github.com/abdullahnaveedan/unique-file-generator.git
    cd unique-file-generator
 
 # Usage
