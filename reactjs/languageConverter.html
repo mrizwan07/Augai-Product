@@ -1,0 +1,59 @@
+{% extends "structure.html" %}
+{% block title %}Input and Output Divs{% endblock title%}
+{% block body %}
+{% load static %}
+
+<style>
+    textarea {
+        margin: 100px; /* Adjust as needed */
+    }
+</style>
+
+<section class="input-output text-center pt-5 mt-5">
+    <div class="container-fluid pt-4 mt-4">
+        <h1 class="fw-bolder display-4">Language Translator</h1>
+        <p>Translate text from one language to another.</p>
+
+
+
+    <div class="d-flex">
+            <div class="column">
+                <div class="col-lg-6 col-md-12 ">
+                    <!-- Wrap the select within a div with the same grid classes -->
+                    <div class="form-group flex-grow-1">
+                        <select class="form-select w-100" aria-label="Default select example">
+                        <option value="1">Urdu</option>
+                        <option value="2">English</option>
+                        <option value="3">French</option
+                        </select>
+                    </div>
+                    <div class="col-lg-6 col-md-12 ">
+                        <textarea id="inputTextArea" class="form-control flex-grow-1" rows="8" placeholder="Enter text to translate"></textarea>
+                    </div>
+                </div>
+                
+            </div>
+
+
+            <div class="column">
+            <div class="col-lg-6 col-md-12 ">
+                <div class="form-group flex-grow-1">
+                    <select class="form-select w-100" aria-label="Default select example">
+                        
+                        <option value="1">Urdu</option>
+                        <option value="2">English</option>
+                        <option value="3">French</option>
+                    </select>
+                </div>
+                <div class="col-lg-6 col-md-12 ">
+                    <textarea id="outputTextArea" class="form-control flex-grow-1" rows="8" placeholder="Translated text will appear here" readonly></textarea>
+                </div>
+            </div>                
+                
+            </div>
+    </div>
+</div>
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="{% static "js/languageConvertor.js" %}"></script>
+{% endblock body %}

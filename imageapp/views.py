@@ -23,6 +23,22 @@ def index(request):
 def diffuseImg(request):
     return render(request,"diffuse.html")
 
+def languageConverter(request):
+    return render(request,"languageConverter.html")
+
+def Translate(request):
+    if request.is_ajax() and request.method == 'POST':
+        input_text = request.POST.get('input_text')
+        input_language = request.POST.get('input_language')
+        output_language = request.POST.get('output_language')
+
+# tranlation code 
+
+
+    translated_text = input_text  
+    return JsonResponse({'translated_text': translated_text})
+    
+
 def loginPage(request):
     if request.user.is_authenticated:
         return redirect("diffuseImage")
